@@ -15,10 +15,10 @@ WORKDIR /root
 ADD http://emqtt.io/downloads/latest/ubuntu /root/emqtt.zip
 RUN unzip emqtt.zip && rm -rf emqtt.zip
 
-# Install config files
-COPY ./files/vm.args emqttd/etc/vm.args 
-COPY ./files/emqttd.config emqttd/etc/emqttd.config 
+# Install rootfs files
+COPY ./rootfs/* /
 
+# Expose Ports
 EXPOSE 1883
 EXPOSE 8883
 EXPOSE 8083

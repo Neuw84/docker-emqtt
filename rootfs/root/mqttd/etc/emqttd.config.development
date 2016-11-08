@@ -12,13 +12,21 @@
  ]},
  {lager, [
     {colored, true},
-    {async_threshold, 5000},
+    {async_threshold, 1000},
     {error_logger_redirect, false},
     {crash_log, "log/emqttd_crash.log"},
     {handlers, [
-        {lager_console_backend, error},
+        {lager_console_backend, info},
         %%NOTICE: Level >= error
         %%{lager_emqtt_backend, error},
+        {lager_file_backend, [
+            {formatter_config, [time, " ", pid, " [",severity,"] ", message, "\n"]},
+            {file, "log/emqttd_info.log"},
+            {level, info},
+            {size, 104857600},
+            {date, "$D0"},
+            {count, 30}
+        ]},
         {lager_file_backend, [
             {formatter_config, [time, " ", pid, " [",severity,"] ", message, "\n"]},
             {file, "log/emqttd_error.log"},
@@ -30,7 +38,7 @@
     ]}
  ]},
  {esockd, [
-    {logger, {lager, error}}
+    {logger, {lager, info}}
  ]},
  {emqttd, [
     %% Authentication and Authorization
@@ -69,14 +77,14 @@
         %% Packet
         {packet, [
             %% Max ClientId Length Allowed
-            {max_clientid_len, 512},
+            {max_clientid_len, 1024},
             %% Max Packet Size Allowed, 64K default
-            {max_packet_size, 12582912}
+            {max_packet_size, 65536}
         ]},
         %% Client
         {client, [
             %% Socket is connected, but no 'CONNECT' packet received
-            {idle_timeout, 30} %% seconds
+            {idle_timeout, 10} %% seconds
         ]},
         %% Session
         {session, [
@@ -85,7 +93,7 @@
             {max_inflight, 100},
 
             %% Retry interval for redelivering QoS1/2 messages.
-            {unack_retry_interval, 60},
+            {unack_retry_interval, 20},
 
             %% Awaiting PUBREL Timeout
             {await_rel_timeout, 20},
@@ -94,7 +102,7 @@
             {max_awaiting_rel, 0},
 
             %% Statistics Collection Interval(seconds)
-            {collect_interval, 0},
+            {collect_interval, 20},
 
             %% Expired after 2 day (unit: minute)
             {expired_after, 2880}
@@ -213,7 +221,7 @@
                 %{sndbuf, 4096},
                 %{buffer, 4096},
                 %{nodelay, true},
-                {backlog, 1024}
+                {backlog, 512}
             ]}
         ]},
 
@@ -273,19 +281,18 @@
 
     %% Erlang System Monitor
     {sysmon, [
-        %% Long GC, don't monitor in production mode for:
-        %% https://github.com/erlang/otp/blob/feb45017da36be78d4c5784d758ede619fa7bfd3/erts/emulator/beam/erl_gc.c#L421
-        {long_gc, false},
+        %% Long GC
+        {long_gc, 100},
 
         %% Long Schedule(ms)
-        {long_schedule, 240},
+        {long_schedule, 100},
 
         %% 8M words. 32MB on 32-bit VM, 64MB on 64-bit VM.
         %% 8 * 1024 * 1024
         {large_heap, 8388608},
 
         %% Busy Port
-        {busy_port, false},
+        {busy_port, true},
 
         %% Busy Dist Port
         {busy_dist_port, true}

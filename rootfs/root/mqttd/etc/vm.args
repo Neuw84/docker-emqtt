@@ -25,13 +25,13 @@
 +K true
 
 ## 12 threads/core.
-+A 12
++A 48
 
 ## max process numbers
-+P 2048
++P 8192
 
 ## Sets the maximum number of simultaneously existing ports for this system
-+Q 2048
++Q 8192
 
 ## max atom number
 ## +t
@@ -58,3 +58,4 @@
 ## Tweak GC to run more often
 -env ERL_FULLSWEEP_AFTER 1000
 
+-env ERL_CRASH_DUMP log/emqttd_crash.dump
